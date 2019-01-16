@@ -18,11 +18,13 @@ The goals / steps of this project are the following:
 
 [image1]: ./output_images/output_6_0.png "Undistorted"
 [image2]: ./output_images/lane_undistortion.png "Road Transformed"
-[image3]: ./examples/binary_combo_example.jpg "Binary Example"
-[image4]: ./examples/warped_straight_lines.jpg "Warp Example"
-[image5]: ./examples/color_fit_lines.jpg "Fit Visual"
-[image6]: ./examples/example_output.jpg "Output"
-[video1]: ./project_video.mp4 "Video"
+[image3]: ./output_images/output_9_0.png "Binary Example"
+[image4]: ./output_images/output_11_0.png "All Binary Example"
+[image5]: ./output_images/output_14_0.png "Warp Example"
+[image6]: ./output_images/output_18_1.png "histogram and sliding window"
+[image7]: ./output_images/output_20_0.png "Quick search"
+[image8]: ./output_images/output_26_2.png "Lanes on real image"
+[video8]: ./lane_detection_output.mp4 "Video"
 
 ## Contents :
 * The project is implemented in jupyter notebook, and comments are added at appropriate places.
@@ -63,73 +65,139 @@ The goals / steps of this project are the following:
 1. Provide an example of a distortion-corrected image.
 ```
 
-* One of the sample image is taken, and the above lane undistortion method is applied. This can be seen in the **Fifth code block** :
+* One of the sample image is taken, and the above lane undistortion method is applied. This can be seen in the **Fifth code block**
+
 ![alt text][image2]
 
-#### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
-
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `another_file.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
+```
+2. Describe how (and identify where in your code) you used color transforms, 
+   gradients or other methods to create a thresholded binary image.
+   Provide an example of a binary image result.
+```
+* Sobel gradient masking and HLS masking is done, using separate api's, present in **Sixth code block**
+* All the combinations of these filters are tested in **7th and 8th code blocks**
 
 ![alt text][image3]
 
-#### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
-
-The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `example.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
-
-```python
-src = np.float32(
-    [[(img_size[0] / 2) - 55, img_size[1] / 2 + 100],
-    [((img_size[0] / 6) - 10), img_size[1]],
-    [(img_size[0] * 5 / 6) + 60, img_size[1]],
-    [(img_size[0] / 2 + 55), img_size[1] / 2 + 100]])
-dst = np.float32(
-    [[(img_size[0] / 4), 0],
-    [(img_size[0] / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), 0]])
-```
-
-This resulted in the following source and destination points:
-
-| Source        | Destination   | 
-|:-------------:|:-------------:| 
-| 585, 460      | 320, 0        | 
-| 203, 720      | 320, 720      |
-| 1127, 720     | 960, 720      |
-| 695, 460      | 960, 0        |
-
-I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
+* Based on the above observations, the `lane_filter` api is deduced, in **9Th code block**, and all the sample images are tested in **10th code block**.
 
 ![alt text][image4]
 
-#### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
+```
+3. Describe how (and identify where in your code) you performed a perspective transform
+   and provide an example of a transformed image.
+```
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+* The Singleton class has been implemented, that handles the perspective and inverse perspective transform, in **11th code block**
+* Also, this singleton class is instantiated in **12th code block**, which also sets the source and destination points.
+* Wrapper api's are implemented to acccess the singleton objects's `warp and unwarp` methods.
+* Testing of this methods are done using sample images, in **13th Code block**
 
 ![alt text][image5]
 
-#### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
+```
+4. Describe how (and identify where in your code) you identified lane-line pixels
+   and fit their positions with a polynomial?
+```
 
-I did this in lines # through # in my code in `my_other_file.py`
-
-#### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
-
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+* All the operations that deal with the lane line polynomial and curvature calculations are implemented as methods in one singleton class **Polynomial_lanes**, in **15th code block**
+* The above rubric point is satisfied by the methods 
+   * method `find_histogram` to deduce the histogram
+   * method `sliding_window_search` to search for pixels that belong to lanes, using sliding window method
+   * method `fit_polynomial` to find the polynomial equation, that matches the lane pixels identified
+   * method `search_around_poly` (quick search) to find the lane pixels faster than sliding window search
+   * method `check_sanity` checks whether the lane lines identified by quick search makes sense.
+* All these methods are tested one after the other, the code block that follows.
 
 ![alt text][image6]
+![alt text][image7]
 
----
+```
+5. Describe how (and identify where in your code) you calculated the radius of 
+   curvature of the lane and the position of the vehicle with respect to center.
+```
 
-### Pipeline (video)
+* This requirement is satisfied by the following methods of **Polynomial_lanes** class:
+   * methods `measure_curvature_real` and `find_offset`
+   * method `measure_curvature_real` calculates the curvature radius using the formula:
+   ```python
+   # Calculation of R_curve (radius of curvature)
+   left_curve_rad = ((1 + (2*left_fit_coeff[0]*y_eval*ym_per_pix + left_fit_coeff[1])**2)**1.5) / np.absolute(2*left_fit_coeff[0])
+   right_curve_rad = ((1 + (2*right_fit_coeff[0]*y_eval*ym_per_pix + right_fit_coeff[1])**2)**1.5) / np.absolute(2*right_fit_coeff[0])
 
-#### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
+   ```
+* We use the following ratio to convert from pixels to meters, to find curvature radius in real world mesurement
+   ```python
+   # These are arbitrary values mentioned in udacity classroom
+        
+        ############################################
+        # In reality, this value depends upon the  #
+        # co-ordinates that we choose for warping  #
+        ############################################
+        
+        ym_per_pix = 30/720                  # meters per pixel in y dimension
+        xm_per_pix = 3.7/700                 # meters per pixel in x dimension
+        ploty = np.linspace(0, 719, num=720) # to cover same y-range as image
+   ```
+*  the method `find_offset` finds the offset of the car using the same conversion ratio.
+   ```python
+      center_of_lane = int((int(left_base) + int(right_base))/2)
+        if center_of_lane > 640:
+            side = "left"
+            distance = ((center_of_lane-640)*(3.7/700))
+        else:
+            side = "right"
+            distance = ((640-center_of_lane)*(3.7/700))
+   ```
 
-Here's a [link to my video result](./project_video.mp4)
+```
+6. Provide an example image of your result plotted back down onto the road
+   such that the lane area is identified clearly.
+```
+* This requirement is satisfied by the method `plot_on_real_frame` of class **Polynomial_lanes**
+* The lanes are drwn on a warped binary image, unwarped, and drawn over original image using cv2.addWeighted
 
----
+![alt text][image8]
 
-### Discussion
+## Pipeline (video)
 
-#### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
+```
+1. Provide a link to your final video output. 
+   Your pipeline should perform reasonably well on the entire project video
+   (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!)
+```
+* The image processing pipeline that was established to find the lane lines in images successfully processes the video.
+* Frames are searched for lanes using **sliding window search** , until the queue that holds that frame info becomes full (queue size = 10)
+* After that, the new frames are searched for lane pixels using the polynomial of existing frame's lane `quick search`
+* Sanity check is made and failure tolerence is defined, so if the quick search fails fit along with the previous frames, `sliding window search` is done again.
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+Here's a [link to my video result](./lane_detection_output.mp4).
+
+## Discussion
+
+```
+1. Briefly discuss any problems / issues you faced in your 
+   implementation of this project. 
+   Where will your pipeline likely fail? What could you do to make it more robust?
+```
+* Problems Faced:
+   * The organisation and grouping of all the operations, in a logical way was challenging.
+   * Though many operations related to each other are grouped as classes, some remains still as api's
+   * Choosing the co-ordinates for warping was hard, as the coordinated decided for one straight line image, didn't fit for warping of image with curved lanes. The lanes went out the warped image in some scenarios.
+  
+* Failure Cases :
+   * As the filtering thresholds and technique are deduced manually by trial and error, this resulting overall filter is not robust.
+   * The Filter might fail, when processing another video.
+   * The co-ordinates used for warping is ddeduced manually. This introduces inconsistency in :
+      * Finding the radius of curvature
+      * Processing new video streams
+   * Using the sanity check based on radius of curvature is not completely accurate:
+      * As the road becomes narrow, the curvature radius increases exponentially
+      * Comparing it with average curvature radius of previous curved frames does not make sense.
+      * But this check holds good in tracking the curved lanes.
+      
+* Possible Improvements:
+   * A better solution to for dynamically finding the co-ordinates for warping
+   * Curvature of the lane for narrow roads should not be considered, as they are incredibly high, and varies fast.
+
+
