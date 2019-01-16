@@ -25,7 +25,7 @@ The `output_images` folder contains all the intermediate outputs of the pipeline
 ## Important Links:
 * [Rubric points](https://review.udacity.com/#!/rubrics/571/view)
 * [Writeup](./Writeup-Project2.md)
-* [TPython Notebook](./Project2-Advanced_Lane_Detection.ipynb)
+* [IPython Notebook](./Project2-Advanced_Lane_Detection.ipynb)
 * [Project_video output](./lane_detection_output.mp4)
 
 
