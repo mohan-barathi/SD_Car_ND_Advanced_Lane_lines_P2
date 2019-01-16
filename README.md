@@ -27,5 +27,5 @@ The `output_images` folder contains all the intermediate outputs of the pipeline
 * [Writeup](./Writeup-Project2.md)
 * [IPython Notebook](./Project2-Advanced_Lane_Detection.ipynb)
 * [Project_video output](./lane_detection_output.mp4)
-
+* [To view the notebook on nbviewer](https://nbviewer.jupyter.org/github/mohan-barathi/SD_Car_ND_Advanced_Lane_lines_P2/blob/master/Project2-Advanced_Lane_Detection.ipynb)
 
