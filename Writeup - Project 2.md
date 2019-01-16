@@ -174,6 +174,10 @@ The goals / steps of this project are the following:
 * After that, the new frames are searched for lane pixels using the polynomial of existing frame's lane `quick search`
 * Sanity check is made and failure tolerence is defined, so if the quick search fails fit along with the previous frames, `sliding window search` is done again.
 
+**As we can see in the final output, 363 frames are processed using sliding window search,
+898 frames are processed using quick search. 
+The entire process took 4 min 16 seconds to complete**
+
 Here's a [link to my video result](./lane_detection_output.mp4).
 
 ## Discussion
