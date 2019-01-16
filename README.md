@@ -16,11 +16,11 @@ The Project
 * Warp the detected lane boundaries back onto the original image.
 * Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
 
-![alt text][image1](./output_images/output_26_2.png)
+![alt text](./output_images/output_26_2.png)
 
 The images used for camera calibration are in the folder called `camera_cal`.  The images in `test_images` are used for testing the pipeline on single frames.  
 
-The `output_images` folder contains all the intermediate outputs of the pipeline, that were used for [writeup](./Writeup - Project 2.md)  
+The `output_images` folder contains all the intermediate outputs of the pipeline, that were used for [writeup](./Writeup-Project2.md)  
 
 ## Important Links:
 * [Rubric points](https://review.udacity.com/#!/rubrics/571/view)
